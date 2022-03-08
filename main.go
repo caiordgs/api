@@ -10,9 +10,8 @@ import (
 
 func main() {
 	config.Load()
-
-	fmt.Println("API!")
 	r := router.Generate()
 
+	fmt.Printf("Connected on port %d\n", config.Port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", config.Port), r))
 }
