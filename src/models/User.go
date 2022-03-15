@@ -26,19 +26,19 @@ func (user *User) Prepare() error {
 
 func (user *User) validate() error {
 	if user.Name == "" {
-		return errors.New("O nome é obrigatório.")
+		return errors.New("Field 'Name' is required.")
 	}
 
 	if user.Nick == "" {
-		return errors.New("O nick é obrigatório.")
+		return errors.New("Field 'Nick' is required.")
 	}
 
 	if user.Email == "" {
-		return errors.New("O e-mail é obrigatório.")
+		return errors.New("Field 'Email' is required.")
 	}
 
 	if user.Password == "" {
-		return errors.New("A senha é obrigatório.")
+		return errors.New("Field 'Password' is required.")
 	}
 
 	return nil
