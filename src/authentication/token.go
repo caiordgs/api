@@ -2,6 +2,7 @@ package authentication
 
 import (
 	"api/src/config"
+	"errors"
 	"fmt"
 	jwt "github.com/dgrijalva/jwt-go"
 	"net/http"
@@ -24,8 +25,12 @@ func ValidateToken(r *http.Request) error {
 	if erro != nil {
 		return erro
 	}
-	fmt.Println(token)
-	return nil
+
+	if _, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		return nil
+	}
+
+	return errors.New("Token inválido.")
 }
 
 func extractToken(r *http.Request) string {
