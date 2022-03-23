@@ -6,6 +6,7 @@ import (
 	"api/src/models"
 	"api/src/repos"
 	"api/src/responses"
+	"api/src/security"
 	"encoding/json"
 	"errors"
 	"github.com/gorilla/mux"
@@ -309,4 +310,65 @@ func FindFollowing(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responses.JSON(w, http.StatusOK, users)
+}
+
+// PasswordUpdate allows to change the password of a user.
+func PasswordUpdate(w http.ResponseWriter, r *http.Request) {
+	tokenUserID, erro := authentication.ExtractUserID(r)
+	if erro != nil {
+		responses.Erro(w, http.StatusUnauthorized, erro)
+		return
+	}
+
+	parameters := mux.Vars(r)
+	userID, erro := strconv.ParseUint(parameters["userId"], 10, 64)
+	if erro != nil {
+		responses.Erro(w, http.StatusBadRequest, erro)
+		return
+	}
+
+	if tokenUserID != userID {
+		responses.Erro(w, http.StatusForbidden, errors.New("it's not possible to update the password from other users"))
+		return
+	}
+
+	requestBody, erro := ioutil.ReadAll(r.Body)
+
+	var password models.Password
+	if erro = json.Unmarshal(requestBody, &password); erro != nil {
+		responses.Erro(w, http.StatusBadRequest, erro)
+		return
+	}
+
+	db, erro := database.Connect()
+	if erro != nil {
+		responses.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+	defer db.Close()
+
+	repository := repos.NewUserRepository(db)
+	savedPassword, erro := repository.SearchPassword(userID)
+	if erro != nil {
+		responses.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+
+	if erro = security.PasswordValidation(savedPassword, password.Old); erro != nil {
+		responses.Erro(w, http.StatusUnauthorized, errors.New("your old password does not match"))
+		return
+	}
+
+	hashedPassword, erro := security.Hash(password.New)
+	if erro != nil {
+		responses.Erro(w, http.StatusBadRequest, erro)
+		return
+	}
+
+	if erro = repository.PasswordUpdate(userID, string(hashedPassword)); erro != nil {
+		responses.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+
+	responses.JSON(w, http.StatusNoContent, nil)
 }
