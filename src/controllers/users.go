@@ -15,6 +15,7 @@ import (
 	"strings"
 )
 
+// CreateUser creates an user
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	requestBody, erro := ioutil.ReadAll(r.Body)
 	if erro != nil {
@@ -49,7 +50,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusCreated, user)
 }
 
-// Searches all users.
+// SearchUsers searches all users.
 func SearchUsers(w http.ResponseWriter, r *http.Request) {
 	nameOrNick := strings.ToLower(r.URL.Query().Get("user"))
 
@@ -70,7 +71,7 @@ func SearchUsers(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusOK, users)
 }
 
-// Searches one specific user.
+// SearchUser searches one specific user.
 func SearchUser(w http.ResponseWriter, r *http.Request) {
 	parameters := mux.Vars(r)
 
@@ -97,6 +98,7 @@ func SearchUser(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusOK, user)
 }
 
+// UpdateUser updates the info on an user.
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	parameters := mux.Vars(r)
 	userID, erro := strconv.ParseUint(parameters["userId"], 10, 64)
@@ -148,6 +150,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusNoContent, nil)
 }
 
+// DeleteUser deletes the user.
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	parameters := mux.Vars(r)
 	userID, erro := strconv.ParseUint(parameters["userId"], 10, 64)
@@ -184,6 +187,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// FollowUser follows another user.
 func FollowUser(w http.ResponseWriter, r *http.Request) {
 	followerID, erro := authentication.ExtractUserID(r)
 	if erro != nil {
@@ -217,4 +221,9 @@ func FollowUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responses.JSON(w, http.StatusNoContent, nil)
+}
+
+// UnfollowUser unfollows another user.
+func UnfollowUser(w http.ResponseWriter, r *http.Request) {
+
 }
