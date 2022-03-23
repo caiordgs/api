@@ -284,3 +284,29 @@ func FindFollowers(w http.ResponseWriter, r *http.Request) {
 
 	responses.JSON(w, http.StatusOK, followers)
 }
+
+// FindFollowing brings up all other users that a user is following.
+func FindFollowing(w http.ResponseWriter, r *http.Request) {
+	parameters := mux.Vars(r)
+	userID, erro := strconv.ParseUint(parameters["userId"], 10, 64)
+	if erro != nil {
+		responses.Erro(w, http.StatusBadRequest, erro)
+		return
+	}
+
+	db, erro := database.Connect()
+	if erro != nil {
+		responses.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+	defer db.Close()
+
+	repository := repos.NewUserRepository(db)
+	users, erro := repository.FindFollowing(userID)
+	if erro != nil {
+		responses.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, users)
+}
