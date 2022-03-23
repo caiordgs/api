@@ -15,7 +15,7 @@ import (
 	"strings"
 )
 
-// CreateUser creates an user
+// CreateUser creates a user
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	requestBody, erro := ioutil.ReadAll(r.Body)
 	if erro != nil {
@@ -98,7 +98,7 @@ func SearchUser(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusOK, user)
 }
 
-// UpdateUser updates the info on an user.
+// UpdateUser updates the info on a user.
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	parameters := mux.Vars(r)
 	userID, erro := strconv.ParseUint(parameters["userId"], 10, 64)
@@ -257,4 +257,30 @@ func UnfollowUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responses.JSON(w, http.StatusNoContent, nil)
+}
+
+// FindFollowers brings up all followers from a user.
+func FindFollowers(w http.ResponseWriter, r *http.Request) {
+	parameters := mux.Vars(r)
+	userID, erro := strconv.ParseUint(parameters["userId"], 10, 64)
+	if erro != nil {
+		responses.Erro(w, http.StatusBadRequest, erro)
+		return
+	}
+
+	db, erro := database.Connect()
+	if erro != nil {
+		responses.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+	defer db.Close()
+
+	repository := repos.NewUserRepository(db)
+	followers, erro := repository.FindFollowers(userID)
+	if erro != nil {
+		responses.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, followers)
 }
