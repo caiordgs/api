@@ -25,13 +25,18 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var publications models.Publications
-	if erro = json.Unmarshal(requestBody, &publications); erro != nil {
+	var posts models.Posts
+	if erro = json.Unmarshal(requestBody, &posts); erro != nil {
 		responses.Erro(w, http.StatusUnprocessableEntity, erro)
 		return
 	}
 
-	publications.AuthorID = userID
+	posts.AuthorID = userID
+
+	if erro = posts.Prepare(); erro != nil {
+		responses.Erro(w, http.StatusBadRequest, erro)
+		return
+	}
 
 	db, erro := database.Connect()
 	if erro != nil {
@@ -41,13 +46,13 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	repository := repos.NewPublicationsRepository(db)
-	publications.ID, erro = repository.Create(publications)
+	posts.ID, erro = repository.Create(posts)
 	if erro != nil {
 		responses.Erro(w, http.StatusInternalServerError, erro)
 		return
 	}
 
-	responses.JSON(w, http.StatusCreated, publications)
+	responses.JSON(w, http.StatusCreated, posts)
 }
 
 // FindPosts brings up the posts that show up on the user feed.

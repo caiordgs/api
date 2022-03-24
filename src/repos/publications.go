@@ -5,15 +5,15 @@ import (
 	"database/sql"
 )
 
-type Publications struct {
+type Posts struct {
 	db *sql.DB
 }
 
-func NewPublicationsRepository(db *sql.DB) *Publications {
-	return &Publications{db}
+func NewPublicationsRepository(db *sql.DB) *Posts {
+	return &Posts{db}
 }
 
-func (repository Publications) Create(post models.Publications) (uint64, error) {
+func (repository Posts) Create(post models.Posts) (uint64, error) {
 	statement, erro := repository.db.Prepare("insert into posts (title, content, author_id) value (?, ?, ?)")
 
 	if erro != nil {

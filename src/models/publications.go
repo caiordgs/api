@@ -1,9 +1,13 @@
 package models
 
-import "time"
+import (
+	"errors"
+	"strings"
+	"time"
+)
 
-// Publications has all the fields on a user post.
-type Publications struct {
+// Posts has all the fields on a post post.
+type Posts struct {
 	ID         uint64    `json:"id,omitempty"`
 	Title      string    `json:"title,omitempty"`
 	Content    string    `json:"content,omitempty"`
@@ -11,4 +15,30 @@ type Publications struct {
 	AuthorNick uint64    `json:"authorNick,omitempty"`
 	Likes      uint64    `json:"likes"`
 	CreatedIn  time.Time `json:"createdIn,omitempty"`
+}
+
+func (post *Posts) Prepare() error {
+	if erro := post.validate(); erro != nil {
+		return erro
+	}
+
+	post.format()
+	return nil
+}
+
+func (post *Posts) validate() error {
+	if post.Title == "" {
+		return errors.New("Field 'Title' is required.")
+	}
+
+	if post.Content == "" {
+		return errors.New("Field 'Content' is required.")
+	}
+
+	return nil
+}
+
+func (post *Posts) format() {
+	post.Title = strings.TrimSpace(post.Title)
+	post.Content = strings.TrimSpace(post.Content)
 }
