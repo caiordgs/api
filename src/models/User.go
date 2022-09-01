@@ -30,23 +30,23 @@ func (user *User) Prepare(stage string) error {
 
 func (user *User) validate(stage string) error {
 	if user.Name == "" {
-		return errors.New("Field 'Name' is required.")
+		return errors.New("field 'Name' is required")
 	}
 
 	if user.Nick == "" {
-		return errors.New("Field 'Nick' is required.")
+		return errors.New("field 'Nick' is required")
 	}
 
 	if user.Email == "" {
-		return errors.New("Field 'e-mail' is required and cannot be blank.")
+		return errors.New("field 'e-mail' is required and cannot be blank")
 	}
 
 	if erro := checkmail.ValidateFormat(user.Email); erro != nil {
-		return errors.New("The inserted e-mail is invalid.")
+		return errors.New("the inserted e-mail is invalid")
 	}
 
 	if stage == "register" && user.Password == "" {
-		return errors.New("Field 'Password' is required.")
+		return errors.New("field 'Password' is required")
 	}
 
 	return nil
